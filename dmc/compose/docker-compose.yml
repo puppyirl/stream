@@ -1,5 +1,3 @@
-version: "3.7"
-
 networks:
   global:
     external: true
@@ -25,10 +23,10 @@ services:
       - ${DATA_DIR}/media:/data/media
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dmc-jellyfin.rule=Host(`${SUB_DOMAIN_JELLYFIN}.${DOMAIN}`)"
-      - "traefik.http.routers.dmc-jellyfin.tls=true"
-      - "traefik.http.services.dmc-jellyfin.loadbalancer.server.port=8096"
-      - "traefik.http.routers.dmc-jellyfin.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stream-jellyfin.rule=Host(`${SUB_DOMAIN_JELLYFIN}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-jellyfin.tls=true"
+      - "traefik.http.services.stream-jellyfin.loadbalancer.server.port=8096"
+      - "traefik.http.routers.stream-jellyfin.tls.certresolver=letsencrypt"
       - "traefik.docker.network=global"
 
   qbittorrent:
@@ -51,14 +49,14 @@ services:
       - 6881:6881/udp # Torrent port UDP
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dmc-qbittorrent.rule=Host(`${SUB_DOMAIN_QBITTORRENT}.${DOMAIN}`)"
-      - "traefik.http.routers.dmc-qbittorrent.tls=true"
-      - "traefik.http.services.dmc-qbittorrent.loadbalancer.server.port=8080"
-      - "traefik.http.routers.dmc-qbittorrent.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stream-qbittorrent.rule=Host(`${SUB_DOMAIN_QBITTORRENT}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-qbittorrent.tls=true"
+      - "traefik.http.services.stream-qbittorrent.loadbalancer.server.port=8080"
+      - "traefik.http.routers.stream-qbittorrent.tls.certresolver=letsencrypt"
       - "traefik.docker.network=global"
       # Basic auth
-      - "traefik.http.middlewares.dmc-auth.basicauth.usersfile=/.htpasswd"
-      - "traefik.http.routers.dmc-qbittorrent.middlewares=dmc-auth"
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-qbittorrent.middlewares=stream-auth"
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -75,14 +73,14 @@ services:
       - ${DATA_DIR}:/data
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dmc-radarr.rule=Host(`${SUB_DOMAIN_RADARR}.${DOMAIN}`)"
-      - "traefik.http.routers.dmc-radarr.tls=true"
-      - "traefik.http.services.dmc-radarr.loadbalancer.server.port=7878"
-      - "traefik.http.routers.dmc-radarr.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stream-radarr.rule=Host(`${SUB_DOMAIN_RADARR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-radarr.tls=true"
+      - "traefik.http.services.stream-radarr.loadbalancer.server.port=7878"
+      - "traefik.http.routers.stream-radarr.tls.certresolver=letsencrypt"
       - "traefik.docker.network=global"
       # Basic auth
-      - "traefik.http.middlewares.dmc-auth.basicauth.usersfile=/.htpasswd"
-      - "traefik.http.routers.dmc-radarr.middlewares=dmc-auth"
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-radarr.middlewares=stream-auth"
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -101,14 +99,14 @@ services:
       - ${DATA_DIR}:/data
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dmc-sonarr.rule=Host(`${SUB_DOMAIN_SONARR}.${DOMAIN}`)"
-      - "traefik.http.routers.dmc-sonarr.tls=true"
-      - "traefik.http.services.dmc-sonarr.loadbalancer.server.port=8989"
-      - "traefik.http.routers.dmc-sonarr.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stream-sonarr.rule=Host(`${SUB_DOMAIN_SONARR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-sonarr.tls=true"
+      - "traefik.http.services.stream-sonarr.loadbalancer.server.port=8989"
+      - "traefik.http.routers.stream-sonarr.tls.certresolver=letsencrypt"
       - "traefik.docker.network=global"
       # Basic auth
-      - "traefik.http.middlewares.dmc-auth.basicauth.usersfile=/.htpasswd"
-      - "traefik.http.routers.dmc-sonarr.middlewares=dmc-auth"
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-sonarr.middlewares=stream-auth"
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -124,14 +122,14 @@ services:
       - ${SERVICES_DIR}/prowlarr:/config
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dmc-prowlarr.rule=Host(`${SUB_DOMAIN_PROWLARR}.${DOMAIN}`)"
-      - "traefik.http.routers.dmc-prowlarr.tls=true"
-      - "traefik.http.services.dmc-prowlarr.loadbalancer.server.port=9696"
-      - "traefik.http.routers.dmc-prowlarr.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stream-prowlarr.rule=Host(`${SUB_DOMAIN_PROWLARR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-prowlarr.tls=true"
+      - "traefik.http.services.stream-prowlarr.loadbalancer.server.port=9696"
+      - "traefik.http.routers.stream-prowlarr.tls.certresolver=letsencrypt"
       - "traefik.docker.network=global"
       # Basic auth
-      - "traefik.http.middlewares.dmc-auth.basicauth.usersfile=/.htpasswd"
-      - "traefik.http.routers.dmc-prowlarr.middlewares=dmc-auth"
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-prowlarr.middlewares=stream-auth"
 
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
@@ -146,9 +144,9 @@ services:
       - ${SERVICES_DIR}/jellyseerr:/app/config
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dmc-jellyseerr.rule=Host(`${SUB_DOMAIN_JELLYSEERR}.${DOMAIN}`)"
-      - "traefik.http.routers.dmc-jellyseerr.tls=true"
-      - "traefik.http.services.dmc-jellyseerr.loadbalancer.server.port=5055"
-      - "traefik.http.routers.dmc-jellyseerr.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stream-jellyseerr.rule=Host(`${SUB_DOMAIN_JELLYSEERR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-jellyseerr.tls=true"
+      - "traefik.http.services.stream-jellyseerr.loadbalancer.server.port=5055"
+      - "traefik.http.routers.stream-jellyseerr.tls.certresolver=letsencrypt"
       - "traefik.docker.network=global"
 
