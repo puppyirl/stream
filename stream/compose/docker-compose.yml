@@ -1,0 +1,152 @@
+networks:
+  global:
+    external: true
+  local:
+    external: false
+
+services:
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    restart: unless-stopped
+    #security_opt: # Required for Docker versions below 20.10.10, update Docker for long term solution. Source: https://docs.linuxserver.io/faq#jammy
+    #  - seccomp=unconfined
+    networks:
+      - global
+      - local
+    environment:
+      - PUID=${ENV_PUID}
+      - PGID=${ENV_PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${SERVICES_DIR}/jellyfin:/config
+      - ${DATA_DIR}/media:/data/media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stream-jellyfin.rule=Host(`${SUB_DOMAIN_JELLYFIN}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-jellyfin.tls=true"
+      - "traefik.http.services.stream-jellyfin.loadbalancer.server.port=8096"
+      - "traefik.http.routers.stream-jellyfin.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=global"
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    restart: unless-stopped
+    networks:
+      - global
+      - local
+    environment:
+      - PUID=${ENV_PUID}
+      - PGID=${ENV_PGID}
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${SERVICES_DIR}/qbittorrent:/config
+      - ${DATA_DIR}/downloads:/downloads
+    ports:
+      - 8080:8080 # Web UI port
+      - 6881:6881 # Torrent port TCP
+      - 6881:6881/udp # Torrent port UDP
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stream-qbittorrent.rule=Host(`${SUB_DOMAIN_QBITTORRENT}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-qbittorrent.tls=true"
+      - "traefik.http.services.stream-qbittorrent.loadbalancer.server.port=8080"
+      - "traefik.http.routers.stream-qbittorrent.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=global"
+      # Basic auth
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-qbittorrent.middlewares=stream-auth"
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    networks:
+      - global
+      - local
+    environment:
+      - PUID=${ENV_PUID}
+      - PGID=${ENV_PGID}
+      - TZ={TIMEZONE}
+    volumes:
+      - ${SERVICES_DIR}/radarr:/config
+      - ${DATA_DIR}:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stream-radarr.rule=Host(`${SUB_DOMAIN_RADARR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-radarr.tls=true"
+      - "traefik.http.services.stream-radarr.loadbalancer.server.port=7878"
+      - "traefik.http.routers.stream-radarr.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=global"
+      # Basic auth
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-radarr.middlewares=stream-auth"
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    #security_opt: # Required for Docker versions below 20.10.10, update Docker for long term solution. Source: https://docs.linuxserver.io/faq#jammy
+    #  - seccomp=unconfined
+    networks:
+      - global
+      - local
+    environment:
+      - PUID=${ENV_PUID}
+      - PGID=${ENV_PGID}
+      - TZ={TIMEZONE}
+    volumes:
+      - ${SERVICES_DIR}/sonarr:/config
+      - ${DATA_DIR}:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stream-sonarr.rule=Host(`${SUB_DOMAIN_SONARR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-sonarr.tls=true"
+      - "traefik.http.services.stream-sonarr.loadbalancer.server.port=8989"
+      - "traefik.http.routers.stream-sonarr.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=global"
+      # Basic auth
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-sonarr.middlewares=stream-auth"
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    networks:
+      - global
+      - local
+    environment:
+      - PUID=${ENV_PUID}
+      - PGID=${ENV_PGID}
+      - TZ={TIMEZONE}
+    volumes:
+      - ${SERVICES_DIR}/prowlarr:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stream-prowlarr.rule=Host(`${SUB_DOMAIN_PROWLARR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-prowlarr.tls=true"
+      - "traefik.http.services.stream-prowlarr.loadbalancer.server.port=9696"
+      - "traefik.http.routers.stream-prowlarr.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=global"
+      # Basic auth
+      - "traefik.http.middlewares.stream-auth.basicauth.usersfile=/.htpasswd"
+      - "traefik.http.routers.stream-prowlarr.middlewares=stream-auth"
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    restart: unless-stopped
+    networks:
+      - global
+      - local
+    environment:
+      - LOG_LEVEL=debug
+      - TZ={TIMEZONE}
+    volumes:
+      - ${SERVICES_DIR}/jellyseerr:/app/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stream-jellyseerr.rule=Host(`${SUB_DOMAIN_JELLYSEERR}.${DOMAIN}`)"
+      - "traefik.http.routers.stream-jellyseerr.tls=true"
+      - "traefik.http.services.stream-jellyseerr.loadbalancer.server.port=5055"
+      - "traefik.http.routers.stream-jellyseerr.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=global"
+
