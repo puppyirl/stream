@@ -31,11 +31,11 @@ First we want configure enviroment variables and setup domain records before ins
 
 <b>Clone repository</b><br />
 ```
-git clone https://github.com/EdyTheCow/docker-media-center.git
+git clone https://github.com/puppyirl/stream
 ```
 
 <b>Enviroment variables</b><br />
-Navigate to `dmc/compose/.env/` and edit these variables.
+Navigate to `stream/compose/.env/` and edit these variables.
 
 | Variable | Default | Description |
 |---|---|---|
@@ -83,7 +83,7 @@ docker-compose up -d
  ```
 
 ## Jellyfin
-Inside of `dmc/compose` run
+Inside of `stream/compose` run
  ```
 docker-compose up -d jellyfin
  ```
@@ -95,10 +95,10 @@ Navigate to `jellyfin.domain.com` in your browser and follow the instructions. W
 | Movies | /data/media/movies |
 | TV Shows | /data/media/tvshows |
 
-Jellyfin only has one volume pointing at `/data/media` this allows us to add whatever media type we want without having to define extra volumes in docker for future media types. 
+Jellyfin only has one volume pointing at `/srv/data/media` this allows us to add whatever media type we want without having to define extra volumes in docker for future media types. 
 
 ## qBittorrent
-Inside of `dmc/compose` run
+Inside of `stream/compose` run
  ```
 docker-compose up -d qbittorrent
  ```
@@ -145,7 +145,7 @@ Under `Download Clients` add a new client by selecting qBittorrent. Change these
 Host `qbittorrent` will resolve the local IP of the container, do not use a domain or public IP. It's more convenient and secure to connect services locally. Since the connection is local, you do not need to insert any other credentials. Click `Test` to make sure it works and add the client.
 
 ## Sonarr
-Inside of `dmc/compose` run
+Inside of `stream/compose` run
  ```
 docker-compose up -d sonarr
  ```
@@ -204,9 +204,3 @@ Below are the important settings you should edit, the instructions for sonarr ar
 | Use SSL | Unchecked |
 | API Key | Can be found under General section in radarr / sonarr panel |
 
-
-# 📋 TODO
-- Add an option for rclone for ability to mount gdrive, etc.
-- Add Plex as an option
-- Add VPN option for qBittorrent torrent client
-- Explore the hype surrounding https://real-debrid.com
